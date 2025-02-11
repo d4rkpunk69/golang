@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"maps"
 	"time"
+	"unicode/utf8"
 )
 
 func main() {
@@ -11,16 +13,165 @@ func main() {
 	//switchingWithInterfaceBonus()
 	//arrayKoPo()
 	//slicesOfApples()
-	mapsOfBohol()
+	//mapsOfBohol()
+	//variadicFunc()
+	//closures()
+	//recursion()
+	//rangeRoverCharot_overBuiltinTypes()
+	//pointers()
+	//stringAndRunes()
 }
 
+func stringAndRunes() {
+	const s = "สวัสดี"
+	fmt.Println(s)
+
+	for a := range len(s) {
+		fmt.Printf(" %x ", s[a])
+	}
+	fmt.Println()
+	fmt.Println("Rune Count: ", utf8.RuneCountInString(s))
+
+	for idx, runeValue := range s {
+		fmt.Printf("%#U at %d\n", runeValue, idx)
+	}
+
+	fmt.Println("\nUsing DecodeRuneInString")
+
+	for i, w := 0, 0; i < len(s); i += w {
+		runeValue, width := utf8.DecodeRuneInString(s[i:])
+		fmt.Printf("%#U at %d:%d\n", runeValue, i)
+		w = width
+		examineRune(runeValue)
+	}
+
+}
+func examineRune(r rune) {
+	if r == 't' {
+		fmt.Printf("found tee")
+	} else if r == 'ส' {
+		fmt.Println("found so sua")
+	}
+}
+
+func pointers() {
+	i := 1
+	fmt.Println(i)
+
+	var zeroVal func(n int) int
+	zeroVal = func(n int) int {
+		n = 0
+		return n
+	}
+	var zeroPtr func(n *int) int
+	zeroPtr = func(i *int) int {
+		*i = 0
+		return (*i)
+	}
+	fmt.Println(zeroVal(i))
+	fmt.Println(zeroPtr(&i))
+	fmt.Println(zeroPtr(&i))
+}
+func rangeRoverCharot_overBuiltinTypes() {
+	// range iterates over elements in a variety of built-in data structures.
+	nums := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}
+	sum := 0
+	for i, num := range nums {
+		sum += num
+		fmt.Println("Sum:", sum)
+		fmt.Println("Num:", i)
+	}
+}
+
+// recursion start
+func fact(n int) int {
+	if n == 0 {
+		return 1
+	}
+	//fmt.Println(n)
+	//fmt.Printf("fact: %d\n)", uint8(n*fact(n-1)))
+	return n * fact(n-1)
+}
+func recursion() {
+	fmt.Println(fact(5))
+
+	var fib func(n int) int
+
+	fib = func(n int) int {
+		if n < 2 {
+			return n
+		}
+		return fib(n-1) + fib(n-2)
+	}
+	fmt.Println(fib(7))
+}
+
+//closure start - o supports anonymous functions, which can form closures. Anonymous functions are useful when you want to define a function inline without having to name it
+
+func intSeq() func() int {
+	i := 0
+	return func() int {
+		i++
+		return i
+	}
+}
+func closures() {
+	//This function value captures its own i value,
+	//which will be updated each time we call nextInt.
+	nextInt := intSeq()
+
+	fmt.Println(nextInt())
+	fmt.Println(nextInt())
+	fmt.Println(nextInt())
+
+	newInts := intSeq()
+	fmt.Println(newInts())
+}
+
+// closure end
+// variadic start
+func sum(numbers ...int) {
+	fmt.Print(numbers, " = ")
+	total := 0
+	for _, number := range numbers {
+		total += number
+	}
+	fmt.Println(total)
+}
+func variadicFunc() {
+	sum(1, 2)
+	sum(1, 2, 3)
+	sum(1, 2, 3, 4)
+	sum()
+	sum(5, 5, 5, 5)
+}
+
+// variadic end
 func mapsOfBohol() {
 	//To create an empty map, use the builtin
 	//make: make(map[key-type]val-type).
-	map1 := make(map[string]int)
-	map1["a"] = 1
-	map1["b"] = 2
+	map1 := make(map[string]float32)
+	map1["a"] = 1.3243
+	map1["b"] = 2.432432
 	fmt.Println("map1: ", map1)
+	v1 := map1["c"]
+	fmt.Println("v1: ", v1)
+	fmt.Println("map1 Lenght: ", len(map1))
+	delete(map1, "a")
+	fmt.Println("map1 Lenght: ", len(map1))
+	clear(map1)
+	fmt.Println("map1 Lenght: ", len(map1))
+	_, prs := map1[`a`]
+	fmt.Println("map1[\"a\"]: ", prs)
+	//declaring and initializing a new map in the same line
+	n := map[string]float32{"Pi": 3.1414, "eulers": 1.23232}
+	fmt.Println("map1[]: ", n)
+
+	n2 := map[string]float32{"Pi": 3.1414, "eulers": 1.23232}
+	if maps.Equal(n, n2) {
+		fmt.Println("maps equal")
+	}
+
 }
 func slicesOfApples() {
 	var slice1 []string
