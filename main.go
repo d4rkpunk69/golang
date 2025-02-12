@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"maps"
+	"math"
 	"time"
 	"unicode/utf8"
 )
@@ -20,8 +21,221 @@ func main() {
 	//rangeRoverCharot_overBuiltinTypes()
 	//pointers()
 	//stringAndRunes()
+	//structs()
+	//methods()
+	//interfaces()
+	//enums()
+	//structEmbedding()
+	defered()
 }
 
+func defered() {
+	a := 10
+
+	defer fmt.Println("defered", a)
+
+	a = 11
+	fmt.Println("undefered", a)
+
+	for b := range a {
+		fmt.Println(b + 1)
+		if b == 3 {
+			defer slicesOfApples() //let this function finishes before going back to the loop
+		}
+	}
+
+}
+
+type base struct {
+	num int
+}
+
+func (b base) describe() string {
+	return fmt.Sprintf("%d", b.num)
+}
+
+type container struct {
+	base
+	str string
+}
+
+func structEmbedding() {
+	co := container{
+		base: base{
+			num: 1,
+		},
+		str: "str",
+	}
+
+	fmt.Printf("co={num:%v}, str: %v\n", co.num, co.str)
+	fmt.Println("also num: ", co.base.num)
+	fmt.Println("describe: ", co.describe())
+
+	type describer interface {
+		describe() string
+	}
+
+	var d describer = co
+	fmt.Printf("co={num:%v}, str: %v\n", d.describe(), d.describe())
+}
+
+type ServerState int
+
+const (
+	StateIdle ServerState = iota
+	StateConnected
+	StateError
+	StateRetrying
+)
+
+var stateName = map[ServerState]string{
+	StateIdle:      "Idle",
+	StateConnected: "Connected",
+	StateError:     "Error",
+	StateRetrying:  "Retrying",
+}
+
+func (ss ServerState) String() string {
+	return stateName[ss]
+}
+func transition(s ServerState) ServerState {
+	switch s {
+	case StateIdle:
+		return StateConnected
+	case StateConnected, StateRetrying:
+		return StateIdle
+	case StateError:
+		return StateError
+	default:
+		panic(fmt.Sprintf("unknown server state: %v", s))
+	}
+}
+func enums() {
+	ns := transition(StateError)
+	fmt.Println("idle state:", ns)
+
+	ns2 := transition(ns)
+	fmt.Println("idle state:", ns2)
+
+	ns3 := transition(ns2)
+	fmt.Println("idle state:", ns3)
+}
+
+type shape interface {
+	area() float64
+	perimeter() float64
+}
+type rectangle struct {
+	width, height float64
+}
+type circle struct {
+	radius float64
+}
+
+func (r rectangle) area() float64 {
+	return r.width * r.height
+}
+func (c circle) area() float64 {
+	return math.Pi * c.radius * c.radius
+}
+func (r rectangle) perimeter() float64 {
+	return 2 * (r.width + r.height)
+}
+func (c circle) perimeter() float64 {
+	return 2 * (c.radius * c.radius)
+}
+func printing(s shape) {
+	if r, ok := s.(rectangle); ok {
+		fmt.Println("Rectangle:", r.width, r.height)
+	} else if c, ok := s.(circle); ok {
+		fmt.Println("Circle:", c.radius)
+	}
+	fmt.Print(s, " ")
+	fmt.Print(s.area(), " ")
+	fmt.Println(s.perimeter(), "\n")
+}
+func detectCircle(s shape) {
+	if c, ok := s.(circle); ok {
+		fmt.Println("Circle:", c.radius)
+	}
+}
+func detectRect(s shape) {
+	if r, ok := s.(rectangle); ok {
+		fmt.Println("Rectangle:", r.width, r.height)
+	}
+}
+func interfaces() {
+	r := rectangle{width: 10, height: 5}
+	c := circle{radius: 5}
+
+	printing(r)
+	printing(c)
+
+	detectCircle(r)
+	detectCircle(c)
+	detectRect(r)
+	detectRect(c)
+
+}
+
+type rect struct {
+	width, height int
+}
+
+func (r rect) area() int {
+	return r.width * r.height
+}
+func (r rect) perimeter() int {
+	return 2*r.width + 2*r.height
+}
+func methods() {
+	r := rect{width: 10, height: 5}
+	fmt.Println(r.area(), r.perimeter())
+	fmt.Println("Area: ", r.area())
+	fmt.Println("Perimeter: ", r.perimeter())
+
+	rp := &r
+	rp.width = 20
+	rp.height = 30
+	fmt.Println("area: ", rp.area())
+	fmt.Println("Perimeter: ", rp.perimeter())
+}
+
+type Person struct {
+	name string
+	age  uint8
+}
+
+func newPerson(name string) *Person {
+	p := Person{name: name}
+	p.age = 42
+	return &p
+}
+func structs() {
+	fmt.Println(Person{"Bob", 20})
+	fmt.Println(Person{"Alice", 20})
+	fmt.Println(&Person{"Fb", 34})
+	fmt.Println(newPerson("Jon"))
+
+	s := Person{"JOSE", 28}
+	fmt.Println(s.name)
+
+	s1 := &s
+	fmt.Println(s1.age)
+
+	s1.age = 51
+	fmt.Println(s1.age)
+
+	dog := struct {
+		name    string
+		goodBoy bool
+		dogYear uint8
+	}{
+		"MAXIE",
+		true,
+		20}
+	fmt.Println(dog)
+}
 func stringAndRunes() {
 	const s = "สวัสดี"
 	fmt.Println(s)
