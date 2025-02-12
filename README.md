@@ -1,1 +1,2 @@
-# golang
+# MY JOURNEY PRACTICE FOR GO-LANG Programming
+
